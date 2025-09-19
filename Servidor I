@@ -1,0 +1,106 @@
+from flask import Flask, render_template_string
+import random
+import threading
+import time
+from datetime import datetime
+
+# Cria o servidor web
+app = Flask(__name__)
+
+# Dados iniciais dos sensores (armazenados em memória)
+dados_sensores = {
+    "temperatura": 25.0,
+    "nivel_agua": 50,
+    "movimento": "Não",
+    "acesso": "Trancado"
+}
+
+# Gera dados aleatórios para os sensores
+def gerar_dados_sensores():
+    while True:
+        dados_sensores['temperatura'] = round(random.uniform(20.0, 35.0), 1)
+        dados_sensores['nivel_agua'] = random.randint(0, 100)
+        dados_sensores['movimento'] = "Sim" if random.choice([True, False]) else "Não"
+        dados_sensores['acesso'] = "Liberado" if random.choice([True, False]) else "Trancado"
+        
+        # Espera 3 segundos antes de gerar novos dados
+        time.sleep(3)
+
+# Página HTML que será exibida (tudo em uma string para simplicidade)
+HTML_PAGE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Controle de Horta IoT</title>
+    <meta http-equiv="refresh" content="3"> <!-- Atualiza a página a cada 3 segundos -->
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f0f0f0; }
+        h1 { color: #2c3e50; text-align: center; }
+        .sensor { 
+            background: white; 
+            padding: 20px; 
+            margin: 10px; 
+            border-radius: 10px; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .valor { 
+            font-size: 24px; 
+            font-weight: bold; 
+            color: #3498db; 
+        }
+        .timestamp { 
+            color: #7f8c8d; 
+            font-size: 14px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🌿 Monitoramento da Horta IoT</h1>
+    
+    <div class="sensor">
+        <h2>🌡️ Temperatura</h2>
+        <div class="valor">{{ temperatura }}°C</div>
+    </div>
+    
+    <div class="sensor">
+        <h2>💧 Nível da Água</h2>
+        <div class="valor">{{ nivel_agua }}%</div>
+    </div>
+    
+    <div class="sensor">
+        <h2>🚶 Movimento Detectado</h2>
+        <div class="valor">{{ movimento }}</div>
+    </div>
+    
+    <div class="sensor">
+        <h2>🔐 Controle de Acesso</h2>
+        <div class="valor">{{ acesso }}</div>
+    </div>
+    
+    <div class="timestamp">
+        <p>Última atualização: {{ timestamp }}</p>
+    </div>
+</body>
+</html>
+"""
+
+# Rota principal que renderiza a página com os dados
+@app.route('/')
+def index():
+    return render_template_string(HTML_PAGE, 
+                                temperatura=dados_sensores['temperatura'],
+                                nivel_agua=dados_sensores['nivel_agua'],
+                                movimento=dados_sensores['movimento'],
+                                acesso=dados_sensores['acesso'],
+                                timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+# Inicia a geração de dados em segundo plano
+threading.Thread(target=gerar_dados_sensores, daemon=True).start()
+
+# Executa o servidor web
+if __name__ == '__main__':
+    print("🚀 Servidor de simulação IoT iniciado!")
+    print("📊 Acesse: http://localhost:5000")
+    print("🔄 Dados atualizando a cada 3 segundos...")
+    app.run(debug=True, use_reloader=False)
