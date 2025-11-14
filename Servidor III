@@ -340,6 +340,23 @@ HTML_PAGE = """
 <head>
     <title>Sistema Inteligente de Horta</title>
     <meta http-equiv="refresh" content="5">
+    <script>
+        function gerarPDF() {
+            // Abre o PDF em uma nova aba/janela
+            window.open('/gerar-pdf', '_blank');
+            
+            // Mantém a atualização automática da página atual
+            return false;
+        }
+        
+        function atualizarDados() {
+            // Esta função pode ser expandida para atualização via AJAX no futuro
+            console.log('Sistema em funcionamento...');
+        }
+        
+        // Executa a cada 5 segundos (mesmo tempo do meta-refresh)
+        setInterval(atualizarDados, 5000);
+    </script>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -482,7 +499,10 @@ HTML_PAGE = """
         <h1>🌿 Sistema Inteligente de Monitoramento de Horta</h1>
         
         <div class="header-buttons">
-            <a href="/gerar-pdf" class="btn-pdf">📄 Gerar PDF do Relatório</a>
+            <!-- Botão atualizado para usar JavaScript -->
+            <a href="#" onclick="return gerarPDF()" class="btn-pdf">📄 Gerar PDF do Relatório</a>
+            <!-- Link tradicional como fallback -->
+            <a href="/gerar-pdf" target="_blank" style="margin-left: 10px; font-size: 12px; color: #666;">(Abrir em nova aba)</a>
         </div>
         
         <div class="dashboard">
